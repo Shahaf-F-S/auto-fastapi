@@ -5,7 +5,7 @@ import threading
 
 from fastapi import FastAPI
 
-from auto_fastapi import endpoint_builder, Method, build_endpoints, Server, Config
+from auto_fastapi import bind, Method, build, add, Server, Config
 
 def login(username: str, password: str) -> dict[str, str | dict[str, str]]:
 
@@ -20,7 +20,7 @@ def main() -> None:
 
     app = FastAPI()
 
-    build_endpoints(app, login, endpoint_builder("/login", [Method.GET]))
+    add(app, bind(login, build("/login", [Method.GET])))
 
     server = Server(Config(app, host="127.0.0.1", port=5555))
 

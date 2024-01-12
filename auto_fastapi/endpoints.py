@@ -14,10 +14,12 @@ __all__ = [
     "BaseEndpoint",
     "Endpoint",
     "EndpointBuilder",
-    "endpoint_builder",
+    "bind",
     "Method",
     "METHODS",
-    "build_endpoints"
+    "build",
+    "BoundEndpoint",
+    "add"
 ]
 
 IncEx = set[int] | set[str] | dict[int, ...] | dict[str, ...]
@@ -34,13 +36,16 @@ class Method(Enum):
     HEAD = "HEAD"
     PATCH = "PATCH"
     PUT = "PUT"
+    OPTIONS = "OPTIONS"
+    TRACE = "TRACE"
 
 METHODS = (
     Method.GET, Method.POST, Method.DELETE, Method.UPLOAD,
-    Method.HEAD, Method.PATCH, Method.PUT
+    Method.HEAD, Method.PATCH, Method.PUT, Method.OPTIONS,
+    Method.TRACE
 )
 
-@dataclass
+@dataclass(slots=True)
 class BaseEndpoint:
 
     path: str
@@ -105,19 +110,34 @@ class BaseEndpoint:
 
         return data
 
-@dataclass
+@dataclass(slots=True)
 class Endpoint(BaseEndpoint):
 
     c: Callable[_I, _O] = None
 
-@dataclass
+@dataclass(slots=True)
 class EndpointBuilder(BaseEndpoint):
 
     def build(self, c: Callable[_I, _O]) -> Endpoint:
 
         return Endpoint(c=c, **self.data())
 
-def endpoint_builder(
+@dataclass(slots=True)
+class BoundEndpoint:
+
+    c: Callable[_I, _O]
+    builder: EndpointBuilder
+    endpoints: dict[Method, Endpoint]
+
+    def data(self) -> dict[str, ...]:
+
+        return self.builder.data()
+
+    def endpoint(self) -> dict[str, ...]:
+
+        return self.builder.endpoint()
+
+def build(
         path: str,
         methods: Iterable[Method],
         response_model: ... = Default(None),
@@ -171,14 +191,21 @@ def endpoint_builder(
         generate_unique_id_function=generate_unique_id_function
     )
 
-def build_endpoints(
-        app: FastAPI | APIRoute,
-        c: Callable[_I, _O],
-        builder: EndpointBuilder
-) -> dict[Method, Endpoint]:
+def bind(c: Callable[_I, _O], builder: EndpointBuilder) -> BoundEndpoint:
+
+    return BoundEndpoint(
+        c=c,
+        builder=builder,
+        endpoints={
+            method: builder.build(c)
+            for method in set(builder.methods)
+        }
+    )
+
+def add(app: FastAPI | APIRoute, endpoint: BoundEndpoint) -> dict[Method, Callable]:
 
     return {
-        method: getattr(app, method.value.lower())(**builder.endpoint())(c)
-        for method in set(builder.methods)
+        method: getattr(app, method.value.lower())(**endpoint.endpoint())(endpoint.c)
+        for method, method_endpoint in endpoint.endpoints.items()
         if hasattr(app, method.value.lower())
     }
