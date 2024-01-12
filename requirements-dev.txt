@@ -1,0 +1,6 @@
+pdoc3
+twine
+pytest
+
+fastapi
+uvicorn
