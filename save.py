@@ -26,4 +26,4 @@ def main(project: str, silence: bool = True) -> None:
         with suppress(silence=silence):
             command()
 if __name__ == "__main__":
-    main(project="crypto_info")
+    main(project="auto_fastapi")

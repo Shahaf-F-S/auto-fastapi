@@ -8,7 +8,7 @@ setup = source['setup']
 def main() -> None:
     """Runs the function to distribute the package."""
     setup(
-        package="project",
+        package="auto_fastapi",
         exclude=[
             "__pycache__",
             "*.pyc"
@@ -16,15 +16,19 @@ def main() -> None:
         include=[],
         requirements="requirements.txt",
         dev_requirements="requirements-dev.txt",
-        name='project',
+        name='auto-fastapi',
         version='0.0.0',
         description=(
-            "A repo for project template."
+            "A pythonic functional way to construct FastAPI "
+            "applications be declaring endpoints in separation "
+            "of their functional definition, enabeling to separate, "
+            "replicate, and reuse functions in different APIs at the "
+            "same time, and also run multiple of them."
         ),
         license='MIT',
         author="Shahaf Frank-Shapir",
         author_email='shahaffrs@gmail.com',
-        url='https://github.com/Shahaf-F-S/project-template',
+        url='https://github.com/Shahaf-F-S/auto-fastapi',
         long_description_content_type="text/markdown",
         classifiers=[
             "Intended Audience :: Developers",
