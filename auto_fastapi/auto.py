@@ -1,4 +1,4 @@
-# build.py
+# auto.py
 
 from abc import ABCMeta
 from enum import Enum
