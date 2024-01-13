@@ -5,7 +5,11 @@ import threading
 
 from fastapi import FastAPI
 
-from auto_fastapi import bind, Method, build, add, Server, Config
+from auto_fastapi import Method, AutoFasAPI, Builder, Server, Config
+
+def startup() -> None:
+
+    print("startup")
 
 def login(username: str, password: str) -> dict[str, str | dict[str, str]]:
 
@@ -20,7 +24,13 @@ def main() -> None:
 
     app = FastAPI()
 
-    add(app, bind(login, build("/login", [Method.GET])))
+    AutoFasAPI().push_all(
+        app,
+        [
+            (startup, Builder.event("startup")),
+            (login, Builder.endpoint("/login", [Method.GET]))
+        ]
+    )
 
     server = Server(Config(app, host="127.0.0.1", port=5555))
 
