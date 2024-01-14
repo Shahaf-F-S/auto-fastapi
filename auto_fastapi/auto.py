@@ -55,7 +55,9 @@ __all__ = [
     "ADDED",
     "AutoFasAPI",
     "bind_all",
-    "Builder"
+    "Builder",
+    "push",
+    "push_all"
 ]
 
 IncEx = set[int] | set[str] | dict[int, ...] | dict[str, ...]
@@ -581,7 +583,9 @@ def bind_all(data: Iterable[tuple[Callable, Built]]) -> list[Bound]:
 
     return [bind(c, built) for c, built in data]
 
-def add_endpoint(app: FastAPI | APIRoute, endpoint: BoundEndpoint) -> AddedEndpoint:
+App = FastAPI | APIRoute
+
+def add_endpoint(app: App, endpoint: BoundEndpoint) -> AddedEndpoint:
 
     return AddedEndpoint(
         bound=endpoint,
@@ -593,7 +597,7 @@ def add_endpoint(app: FastAPI | APIRoute, endpoint: BoundEndpoint) -> AddedEndpo
     )
 
 def add_websocket_endpoint(
-        app: FastAPI | APIRoute, endpoint: BoundWebSocketEndpoint
+        app: App, endpoint: BoundWebSocketEndpoint
 ) -> AddedWebSocketEndpoint:
 
     return AddedWebSocketEndpoint(
@@ -601,9 +605,7 @@ def add_websocket_endpoint(
         added=app.websocket(**endpoint.data())(endpoint.c)
     )
 
-def add_middleware(
-        app: FastAPI | APIRoute, middleware: BoundMiddleware
-) -> AddedMiddleware:
+def add_middleware(app: App, middleware: BoundMiddleware) -> AddedMiddleware:
 
     return AddedMiddleware(
         bound=middleware,
@@ -611,7 +613,7 @@ def add_middleware(
     )
 
 def add_exception_handler(
-        app: FastAPI | APIRoute, handler: BoundExceptionHandler
+        app: App, handler: BoundExceptionHandler
 ) -> AddedExceptionHandler:
 
     return AddedExceptionHandler(
@@ -619,7 +621,7 @@ def add_exception_handler(
         added=app.exception_handler(**handler.data())(handler.c)
     )
 
-def add_event(app: FastAPI | APIRoute, event: BoundEvent) -> AddedEvent:
+def add_event(app: App, event: BoundEvent) -> AddedEvent:
 
     return AddedEvent(
         bound=event,
@@ -627,26 +629,22 @@ def add_event(app: FastAPI | APIRoute, event: BoundEvent) -> AddedEvent:
     )
 
 @overload
-def add(app: FastAPI | APIRoute, endpoint: BoundEndpoint) -> AddedEndpoint:
+def add(app: App, endpoint: BoundEndpoint) -> AddedEndpoint:
 
     pass
 
 @overload
-def add(
-        app: FastAPI | APIRoute, endpoint: BoundWebSocketEndpoint
-) -> AddedWebSocketEndpoint:
+def add(app: App, middleware: BoundMiddleware) -> AddedMiddleware:
 
     pass
 
 @overload
-def add(
-        app: FastAPI | APIRoute, websocket: BoundWebSocketEndpoint
-) -> AddedWebSocketEndpoint:
+def add(app: App, websocket: BoundWebSocketEndpoint) -> AddedWebSocketEndpoint:
 
     pass
 
 @overload
-def add(app: FastAPI | APIRoute, event: BoundEvent) -> AddedEvent:
+def add(app: App, event: BoundEvent) -> AddedEvent:
 
     pass
 
@@ -665,8 +663,6 @@ ADDED = [
     AddedMiddleware,
     AddedExceptionHandler
 ]
-
-App = FastAPI | APIRoute
 
 def add(app: App, *args, **kwargs) -> Added:
 
@@ -747,6 +743,14 @@ def add(app: App, *args, **kwargs) -> Added:
 def add_all(app: App, bound: Iterable[Bound]) -> list[Added]:
 
     return [add(app, b) for b in bound]
+
+def push(app: App, c: Callable, built: Built) -> Added:
+
+    return add(app, bind(c, built))
+
+def push_all(app: App, data: Iterable[tuple[Callable, Built]]) -> list[Added]:
+
+    return [push(app, *d) for d in data]
 
 _B = TypeVar("_B", Bound, Built)
 
