@@ -26,6 +26,21 @@ class Server:
 
         return self._running
 
+    async def async_run(self, sockets: list[socket.socket] = None) -> None:
+
+        if self.running:
+            return
+
+        self.server = BaseServer(self.config)
+
+        self.config.setup_event_loop()
+
+        self._running = True
+
+        await self.server.serve(sockets=sockets)
+
+        self._running = False
+
     def run(self, sockets: list[socket.socket] = None) -> None:
 
         if self.running:
