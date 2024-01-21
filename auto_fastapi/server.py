@@ -19,7 +19,7 @@ class Server:
 
         self.config = config
 
-        self.server = BaseServer(self.config)
+        self.server: BaseServer | None = None
 
     @property
     def running(self) -> bool:
@@ -27,6 +27,11 @@ class Server:
         return self._running
 
     def run(self, sockets: list[socket.socket] = None) -> None:
+
+        if self.running:
+            return
+
+        self.server = BaseServer(self.config)
 
         self.config.setup_event_loop()
 
@@ -42,3 +47,5 @@ class Server:
 
         while self.running:
             time.sleep(0.0001)
+
+        self.server = None

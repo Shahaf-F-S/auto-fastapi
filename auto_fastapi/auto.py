@@ -53,7 +53,7 @@ __all__ = [
     "BOUND",
     "BUILT",
     "ADDED",
-    "AutoFasAPI",
+    "AutoFastAPI",
     "bind_all",
     "Builder",
     "push",
@@ -770,7 +770,7 @@ class Builder(metaclass=ABCMeta):
     middleware = build_middleware
     event = build_event
 
-class AutoFasAPI:
+class AutoFastAPI:
 
     def __init__(
             self,
@@ -798,7 +798,7 @@ class AutoFasAPI:
 
     def clone(self) -> Self:
 
-        return AutoFasAPI(
+        return AutoFastAPI(
             app=self.app,
             bound=clone_all(self.bound),
             added=self.added.copy()

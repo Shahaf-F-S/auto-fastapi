@@ -5,7 +5,7 @@ import threading
 
 from fastapi import FastAPI
 
-from auto_fastapi import Method, AutoFasAPI, Builder, Server, Config
+from auto_fastapi import Method, AutoFastAPI, Builder, Server, Config
 
 def startup() -> None:
 
@@ -24,7 +24,7 @@ def main() -> None:
 
     app = FastAPI()
 
-    AutoFasAPI().push_all(
+    AutoFastAPI().push_all(
         app,
         [
             (startup, Builder.event("startup")),

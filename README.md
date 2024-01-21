@@ -2,40 +2,46 @@
 
 > A pythonic functional way to construct FastAPI applications be declaring endpoints in separation of their functional definition, enabeling to separate, replicate, and reuse functions in different APIs at the same time, and also run multiple of them.
 
-first of all
-------------
+## Installation
+```
+pip install autl-fastapi
+```
 
-#### specifics:
+## example
 
-- writen and owned by: Shahaf Frank-Shapir
-- all the rights are saved for: Shahaf Frank-Shapir
-- programming languages: python 3.9.12 (100%)
+```python
+from fastapi import FastAPI
 
-before we start
----------------
+from auto_fastapi import Method, AutoFastAPI, Builder, Server, Config
 
-#### description:
 
-- visit the docs to learn more about this project and how to develop with it.
+def startup() -> None:
+    print("startup")
 
-#### dependencies:
 
-- opening:
-  For this is a complex program, which uses a lot of modules, there are required dependencies needed
-  in order to run the program. keep in mined the program was writen in python 3.9, so any python version lower
-  than 3.9 might not work properly.
+def login(username: str, password: str) -> dict[str, str | dict[str, str]]:
+    return {
+        "response": "success",
+        "request": dict(username=username, password=password)
+    }
 
-- install app dependencies by writing the "-r" option to install the requirements
-  writen in a file, and write the following line in the project directory:
-````
-pip install -r requirements.txt
-````
 
-run a test
------------
+app = FastAPI()
 
-#### run from windows command line (inside the project directory)
-- run with python by writing to the command line in the project directory:
-````
-python test.py
-````
+auto = AutoFastAPI(app)
+auto.push((startup, Builder.event("startup")))
+auto.push((login, Builder.endpoint("/login", [Method.GET])))
+
+server = Server(Config(app, host="127.0.0.1", port=5555))
+server.run()
+```
+
+to stop the server
+```python
+server.exit()
+```
+
+to run again
+```python
+server.run()
+```
