@@ -880,6 +880,10 @@ class AutoFastAPI:
             raise ValueError("App is not given nor defined.")
 
         if data is None:
+            data = app
+            app = self.app
+
+        if data is None:
             raise TypeError("bound must be given.")
 
         return self.add(app, self.bind(*data))
