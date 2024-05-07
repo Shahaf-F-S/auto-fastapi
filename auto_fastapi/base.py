@@ -10,7 +10,6 @@ __all__ = [
     "EndpointsRouter"
 ]
 
-@dataclass
 class BaseEndpoints(metaclass=ABCMeta):
 
     pass
