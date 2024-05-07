@@ -17,7 +17,7 @@ def main() -> None:
         requirements="requirements.txt",
         dev_requirements="requirements-dev.txt",
         name='auto-fastapi',
-        version='0.0.3',
+        version='0.1.0',
         description=(
             "A pythonic functional way to construct FastAPI "
             "applications be declaring endpoints in separation "
